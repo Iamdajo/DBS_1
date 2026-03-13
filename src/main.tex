@@ -124,6 +124,105 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
 \end{itemize}
 
 \newpage
+\section{Definovanie používateľských scenárov}
+\label{sec:scenare}
+
+\subsection{UC1 – Zobrazenie zápasového prehľadu}
+\begin{itemize}
+    \item \textbf{Názov a stručný popis:} Zobrazenie prehľadu zápasov. Fanúšik si chce prezrieť rozpis a konečné výsledky zápasov pre konkrétne ligové kolo alebo presný dátum.
+    \item \textbf{Hlavný tok krok za krokom:}
+    \begin{enumerate}
+        \item Používateľ si v systéme zvolí sekciu pre zobrazenie zápasov.
+        \item Zadá požadovaný filter, napríklad konkrétne kolo (napr. 15. kolo) alebo presný dátum.
+        \item Systém prijme požiadavku a začne vyhľadávať prislúchajúce záznamy.
+        \item Systém naformátuje zoznam zápasov vrátane názvov tímov (domáci vs. hostia) a konečného skóre.
+        \item Používateľovi sa zobrazí vizuálny zoznam zápasov.
+    \end{enumerate}
+    \item \textbf{Čo sa deje na dátovej vrstve:} Prehľadáva sa primárne tabuľka \texttt{Zapas}, ktorá sa spája (cez JOIN) s tabuľkou \texttt{Tim} pre získanie textových názvov domáceho a hosťujúceho celku. Aplikuje sa jednoduchý filter \texttt{WHERE kolo\_id = ?} alebo \texttt{WHERE datum = ?}. Nevykonávajú sa žiadne agregácie ani nevznikajú nové záznamy, ide o čisté čítanie dát (SELECT).
+    \item \textbf{Alternatívne toky:} Ak používateľ zadá kolo, ktoré sa ešte nevyžrebovalo, alebo zadá dátum, počas ktorého sa nehrá, systém vyhodnotí prázdny výsledok a zobrazí text: „Pre zvolené kolo/dátum neboli nájdené žiadne zápasy.“
+    \item \textbf{Podporný UML diagram:} Najlepšie tento scenár vystihuje \textit{Sekvenčný diagram}, pretože jasne ilustruje priamočiaru komunikáciu a tok požiadaviek medzi používateľom, používateľským rozhraním a backendom (databázou).
+\end{itemize}
+
+\subsection{UC2 – Vyhľadanie štatistík hráča}
+\begin{itemize}
+    \item \textbf{Názov a stručný popis:} Vyhľadanie štatistík. Používateľ vyhľadáva konkrétneho hráča na základe mena, aby si pozrel jeho detailné štatistiky (góly, karty, odohraté minúty).
+    \item \textbf{Hlavný tok krok za krokom:}
+    \begin{enumerate}
+        \item Používateľ zadá do vyhľadávacieho poľa meno hráča (napr. „Bukayo Saka“).
+        \item Systém vyhľadá záznam hráča v systéme.
+        \item Systém dynamicky prepočíta jeho sezónne štatistiky zo záznamov o zápasoch.
+        \item Systém vygeneruje a používateľovi zobrazí profil hráča s agregovanými dátami.
+    \end{enumerate}
+    \item \textbf{Čo sa deje na dátovej vrstve:} Vyhľadáva sa v tabuľke \texttt{Hrac}. Z tabuľky \texttt{Udalost\_zapasu} sa následne získavajú štatistiky hráča cez asociačnú väzbu. Používajú sa agregačné funkcie \texttt{COUNT()} pre súčet gólov a kariet za danú sezónu, zoskupené cez klauzulu \texttt{GROUP BY hrac\_id}. Záznamy sa nemenia.
+    \item \textbf{Alternatívne toky:} Ak databáza vráti viacero hráčov s rovnakým menom, systém používateľovi zobrazí zoznam nájdených zhôd (s fotkou a tímom), z ktorého si používateľ musí presne vybrať. Ak hráč neexistuje, systém vypíše „Hráč nenájdený“.
+    \item \textbf{Podporný UML diagram:} Pre tento scenár sa hodí \textit{Diagram aktivít}, keďže dobre zachytáva vetvenie logiky (rozhodovací blok) v prípade nájdenia nula, jedného, alebo viacerých hráčov súčasne.
+\end{itemize}
+
+\subsection{UC3 – Zobrazenie tabuľky ligy}
+\begin{itemize}
+    \item \textbf{Názov a stručný popis:} Generovanie ligovej tabuľky. Používateľ chce vidieť aktuálne umiestnenie tímov vypočítané na základe výsledkov odohraných zápasov v prebiehajúcej sezóne.
+    \item \textbf{Hlavný tok krok za krokom:}
+    \begin{enumerate}
+        \item Používateľ klikne v navigácii na možnosť „Ligová tabuľka“.
+        \item Systém identifikuje aktuálne prebiehajúcu sezónu.
+        \item Načíta všetky ukončené zápasy v sezóne a agreguje výsledky tímov (výhry, remízy, prehry).
+        \item Vypočíta zisk bodov a rozdiel v skóre pre každý tím.
+        \item Zoradí tímy od prvého po posledné a zobrazí výsledok používateľovi.
+    \end{enumerate}
+    \item \textbf{Čo sa deje na dátovej vrstve:} Ide o výpočtovo najzložitejší dopyt. Z tabuľky \texttt{Zapas} sa čítajú všetky záznamy pre aktuálnu sezónu (\texttt{sezona\_id = ?}), ktoré majú status odohrané. Používajú sa zložité podmienené agregácie (napr. \texttt{CASE WHEN} pre udelenie 3 bodov za výhru a 1 bodu za remízu). Dáta sa spájajú s tabuľkou \texttt{Tim}. Na záver sa na výsledný set aplikuje operácia zoradenia \texttt{ORDER BY body DESC, rozdiel\_skore DESC}.
+    \item \textbf{Alternatívne toky:} Ak sa sezóna ešte len začala a neodohral sa zatiaľ žiadny zápas, tabuľka nemá z čoho vypočítať body. V takom prípade systém vráti zoznam všetkých tímov priradených k sezóne s 0 bodmi a zoradí ich primárne podľa abecedy.
+    \item \textbf{Podporný UML diagram:} Tento scenár najlepšie vystihne \textit{Sekvenčný diagram}, pretože jasne poukazuje na asynchrónnu komunikáciu databázy, ktorá musí agregovať obrovské množstvo záznamov o zápasoch, kým vráti výsledok do frontendovej časti.
+\end{itemize}
+
+\subsection{UC4 – Správa hráčov v tíme (Admin)}
+\begin{itemize}
+    \item \textbf{Názov a stručný popis:} Správa súpisky. Administrátor systému potrebuje pridať nového hráča do vybraného tímu (prípadne aktualizovať prestup) so zadaním osobných údajov a čísla dresu.
+    \item \textbf{Hlavný tok krok za krokom:}
+    \begin{enumerate}
+        \item Administrátor sa prihlási do systému a otvorí sekciu administrácie tímov.
+        \item Vyberie možnosť pridania nového hráča na súpisku konkrétneho tímu.
+        \item Vyplní formulár s povinnými údajmi (meno, národnosť, post, číslo dresu).
+        \item Potvrdí vytvorenie záznamu.
+        \item Systém skontroluje validitu zadaných údajov a overí, či nie je číslo dresu obsadené.
+        \item Záznam sa uloží a administrátor obdrží potvrdzovaciu hlášku.
+    \end{enumerate}
+    \item \textbf{Čo sa deje na dátovej vrstve:} Vytvára sa nová entita. Dochádza k príkazu \texttt{INSERT INTO Hrac} s príslušnými atribútmi. Ešte predtým sa však databáza pokúsi overiť integritné obmedzenie pre unikátnosť. Kontroluje sa klauzula \texttt{UNIQUE (tim\_id, cislo\_dresu)}. Prehľadáva sa teda tabuľka \texttt{Hrac} pre daný \texttt{tim\_id}.
+    \item \textbf{Alternatívne toky:} Ak administrátor zadá číslo dresu (napr. 10), ktoré v aktuálnom tíme vlastní iný aktívny hráč, databáza vráti chybu na základe porušenia integritného obmedzenia. Systém akciu vloženia zruší a vyzve administrátora textom: „Toto číslo dresu je už v tíme obsadené. Zvoľte iné číslo.“
+    \item \textbf{Podporný UML diagram:} Najlepšie to znázorní \textit{Diagram aktivít}, ktorý sa hodí na popísanie používateľských akcií a systémovej spätnej väzby (vetvenie toku na „Úspešné vloženie“ vs. „Odmietnutie z dôvodu duplicity“).
+\end{itemize}
+
+\subsection{UC5 – Filtrovanie top strelcov}
+\begin{itemize}
+    \item \textbf{Názov a stručný popis:} Rebríček top strelcov. Používateľ si chce pozrieť, kto strelil najviac gólov v sezóne a prípadne si tento zoznam vyfiltrovať pre špecifický tím alebo národnosť.
+    \item \textbf{Hlavný tok krok za krokom:}
+    \begin{enumerate}
+        \item Používateľ si otvorí podstránku ligových štatistík a zvolí kategóriu „Góly“.
+        \item (Voliteľné) Zvolí si z ponuky filter – napríklad tím „Arsenal“.
+        \item Systém identifikuje požiadavku a načíta si zoznam hráčov s priradeným počtom gólov.
+        \item Výsledky zoradí od najlepšieho po najhoršieho.
+        \item Zobrazí používateľovi formátovaný rebríček.
+    \end{enumerate}
+    \item \textbf{Čo sa deje na dátovej vrstve:} Dopytuje sa tabuľka \texttt{Hrac}, ktorá je prepojená (JOIN) s tabuľkou \texttt{Udalost\_zapasu}, prísne filtrovanou podmienkou \texttt{WHERE typ\_udalosti = 'gól'}. Vykonáva sa \texttt{COUNT(udalost\_id)}, pričom sa dáta zoskupujú pre každého hráča pomocou \texttt{GROUP BY hrac\_id}. Ak bol zvolený filter, aplikuje sa navyše \texttt{WHERE tim\_id = ?}. Zoradenie zabezpečí klauzula \texttt{ORDER BY pocet\_golov DESC}.
+    \item \textbf{Alternatívne toky:} Ak používateľ zvolí filter tímu, v ktorom počas danej sezóny nepadol ešte ani jeden gól (alebo hráči ešte vôbec nenastúpili na zápas), systém vygeneruje prázdny rebríček s informáciou: „Pre zvolené kritériá sa nenašli žiadni strelci.“
+    \item \textbf{Podporný UML diagram:} Pre túto operáciu je vhodný \textit{Sekvenčný diagram}, ktorý ukazuje odovzdávanie parametrov (filtrov) z frontendovej vrstvy do databázy a návrat prepočítanej štruktúry.
+\end{itemize}
+
+\subsection{UC6 – Porovnanie výkonu dvoch tímov (Head-to-Head)}
+\begin{itemize}
+    \item \textbf{Názov a stručný popis:} Vzájomné porovnanie. Fanúšik si pred nadchádzajúcim víkendovým zápasom chce nechať porovnať históriu dvoch konkrétnych tímov a vidieť vzájomnú bilanciu ich odohraných zápasov.
+    \item \textbf{Hlavný tok krok za krokom:}
+    \begin{enumerate}
+        \item Používateľ zvolí do prvého výberového boxu Tím A.
+        \item Používateľ zvolí do druhého výberového boxu Tím B.
+        \item Klikne na tlačidlo „Porovnať“.
+        \item Systém vyhľadá ich historické vzájomné zápasy naprieč všetkými evidovanými sezónami.
+        \item Vypočíta štatistiku: počet výhier Tímu A, počet výhier Tímu B, počet remíz a celkové skóre.
+        \item Zobrazí údaje vo forme grafiky a zoznamu predchádzajúcich stretnutí.
+    \end{enumerate}
+    \item \textbf{Čo sa deje na dátovej vrstve:} Prehľadáva sa tabuľka \texttt{Zapas} za použitia komplexnejšej podmienky \texttt{WHERE (domaci\_tim\_id = A AND hostujuci\_tim\_id = B) OR (domaci\_tim\_id = B AND hostujuci\_tim\_id = A)}. Žiadne záznamy nevznikajú. Z vytiahnutých dát prebieha na aplikačnej/databázovej vrstve agregácia, ktorá sumuje, koľkokrát skončilo skóre v prospech Tímu A, a koľkokrát v prospech Tímu B.
+    \item \textbf{Alternatívne toky:} Ak si používateľ vyberie dva tímy, ktoré podľa databázy proti sebe ešte nikdy neodohrali žiadny súťažný zápas (napríklad jeden z nich je absolútny nováčik z nižšej ligy), systém zastaví výpočet a vypíše: „Tieto dva tímy sa v rámci našej evidencie zatiaľ nestretli.“
+    \item \textbf{Podporný UML diagram:} Scenár najlepšie modeluje \textit{Diagram aktivít}, keďže tu existuje jasný používateľský proces vkladania dvoch tímov a podmieňovací blok určujúci, či existuje dostatok dát na vykreslenie vizualizácie.
+\end{itemize}
 
 \section{Analysis}
 \label{sec:analysis}
