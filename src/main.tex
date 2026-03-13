@@ -81,11 +81,49 @@
 \newpage
 
 % =============================================================================
-% This document serves as both the assignment template and a quick guid
-% to the LaTeX features you will need. Replace the content, keep the structure.
-%
-% Template source: https://github.com/FIIT-Databases/assignment-template
-% =============================================================================
+
+\section{Špecifikácia}
+\label{sec:specifikacia}
+
+Táto kapitola poskytuje analytický pohľad na doménu zvolenej témy -- anglickej futbalovej ligy (Premier League) z pohľadu systémového analytika.
+
+\subsection{Problém, účel a pridaná hodnota}
+Systém je navrhnutý na riešenie problému centralizovanej a prehľadnej evidencie všetkých kľúčových informácií spojených s futbalovou ligou. Aktuálne dáta o zápasoch, štatistikách hráčov a celkovom poradí tímov sú pre fanúšikov často roztrúsené na viacerých platformách.
+
+Systém je určený predovšetkým pre **futbalových fanúšikov a analytikov**, ktorí hľadajú detailné štatistiky a historické dáta, a pre **administrátorov ligy**, ktorí spravujú súpisky, tímy a výsledky zápasov.
+\textbf{Pridanou hodnotou} systému je okamžitá dostupnosť ucelených dát (head-to-head porovnania, generovanie aktuálnej tabuľky na základe odohraných zápasov, filtrovanie top strelcov) na jednom mieste.
+
+\subsection{Aktéri systému a ich role}
+V systéme evidujeme dva hlavné typy aktérov s odlišnými úrovňami prístupu:
+\begin{itemize}
+    \item \textbf{Používateľ / Fanúšik:} Má prístup na úrovni čítania (Read-only). Jeho zodpovednosťou nie je správa dát, ale ich konzumácia. Môže vyhľadávať hráčov, prezerať si rozpis zápasov, štatistiky tímov a ligovú tabuľku.
+    \item \textbf{Administrátor:} Má plný prístup (Create, Read, Update, Delete). Je zodpovedný za udržiavanie integrity a aktuálnosti dát. Zaznamenáva výsledky odohraných zápasov, spravuje zoznamy tímov, pridáva nových hráčov, aktualizuje informácie o prestupoch či zraneniach a zapisuje kľúčové udalosti v zápasoch (góly, karty).
+\end{itemize}
+
+\subsection{Kľúčové entity}
+Aby systém dokázal plniť svoje funkcie, musí evidovať nasledujúce kľúčové entity:
+\begin{itemize}
+    \item \textbf{Tím:} Základná entita ligy. Obsahuje informácie ako názov klubu, rok založenia, či domovský štadión. Je kľúčová pre priradenie hráčov a organizáciu zápasov.
+    \item \textbf{Hráč:} Reprezentuje konkrétneho futbalistu s atribútmi ako meno, národnosť, dátum narodenia a preferovaná pozícia. Je dôležitý pre sledovanie individuálnych štatistík (góly, karty).
+    \item \textbf{Zápas:} Spája dva rôzne tímy (domáci a hostia) v konkrétnom čase a kole. Je to nosná entita pre výpočet ligovej tabuľky a agregáciu štatistík.
+    \item \textbf{Sezóna / Ročník:} Umožňuje uchovávať historické dáta. Zabezpečuje, že štatistiky a tabuľky sú viazané na konkrétny časový úsek (napr. 2023/2024).
+    \item \textbf{Udalosť zápasu (Góly / Karty):} Entita spájajúca hráča, zápas a konkrétnu minútu. Je nevyhnutná pre presné generovanie zoznamu strelcov a sledovanie trestov.
+\end{itemize}
+
+\subsection{Biznis pravidlá a integritné obmedzenia}
+Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravidlá sa premietnu do fyzického návrhu databázy pomocou integritných obmedzení:
+\begin{itemize}
+    \item \textbf{Zamedzenie zápasu proti sebe samému:} Tím nemôže v jednom zápase hrať ako domáci aj hosťujúci celok. \\
+    \textit{Premietnutie:} `CHECK (domaci_tim_id != hostujuci_tim_id)`
+    \item \textbf{Logika skóre:} Počet strelených gólov tímu v zápase nesmie byť záporné číslo. \\
+    \textit{Premietnutie:} `CHECK (skore_domaci >= 0 AND skore_hostia >= 0)`
+    \item \textbf{Unikátnosť čísla dresu:} Dvaja aktívni hráči v tom istom tíme nesmú mať v jednej sezóne rovnaké číslo dresu. \\
+    \textit{Premietnutie:} Unikátny kľúč `UNIQUE (tim_id, cislo_dresu)` (s prípadným ohľadom na sezónu/status hráča).
+    \item \textbf{Maximálny počet kariet:} Hráč nemôže v jednom zápase dostať viac ako dve žlté karty (čo znamená následnú červenú) alebo viac ako jednu priamu červenú kartu. \\
+    \textit{Premietnutie:} Ošetrenie na aplikačnej/databázovej vrstve pomocou triggeru (ak sa vkladá udalosť karta, overí sa agregácia v danom zápase).
+    \item \textbf{Príslušnosť hráča k tímu:} Hráč môže byť v jednom konkrétnom časovom úseku aktívnym členom iba jedného tímu. \\
+    \textit{Premietnutie:} Evidencia zmlúv s ohraničením platnosti (od-do) nesmie v databáze obsahovať prekrývajúce sa intervaly pre rovnakého hráča.
+\end{itemize}
 
 \section{Analysis}
 \label{sec:analysis}
