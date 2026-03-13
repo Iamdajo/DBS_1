@@ -88,7 +88,7 @@ Táto kapitola poskytuje analytický pohľad na doménu zvolenej témy -- anglic
 \subsection{Problém, účel a pridaná hodnota}
 Systém je navrhnutý na riešenie problému centralizovanej a prehľadnej evidencie všetkých kľúčových informácií spojených s futbalovou ligou. Aktuálne dáta o zápasoch, štatistikách hráčov a celkovom poradí tímov sú pre fanúšikov často roztrúsené na viacerých platformách.
 
-Systém je určený predovšetkým pre **futbalových fanúšikov a analytikov**, ktorí hľadajú detailné štatistiky a historické dáta, a pre **administrátorov ligy**, ktorí spravujú súpisky, tímy a výsledky zápasov.
+Systém je určený predovšetkým pre \textbf{futbalových fanúšikov a analytikov}, ktorí hľadajú detailné štatistiky a historické dáta, a pre \textbf{administrátorov ligy}, ktorí spravujú súpisky, tímy a výsledky zápasov.
 \textbf{Pridanou hodnotou} systému je okamžitá dostupnosť ucelených dát (head-to-head porovnania, generovanie aktuálnej tabuľky na základe odohraných zápasov, filtrovanie top strelcov) na jednom mieste.
 
 \subsection{Aktéri systému a ich role}
@@ -112,11 +112,11 @@ Aby systém dokázal plniť svoje funkcie, musí evidovať nasledujúce kľúčo
 Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravidlá sa premietnu do fyzického návrhu databázy pomocou integritných obmedzení:
 \begin{itemize}
     \item \textbf{Zamedzenie zápasu proti sebe samému:} Tím nemôže v jednom zápase hrať ako domáci aj hosťujúci celok. \\
-    \textit{Premietnutie:} `CHECK (domaci_tim_id != hostujuci_tim_id)`
+    \textit{Premietnutie:} \texttt{CHECK (domaci\_tim\_id != hostujuci\_tim\_id)}
     \item \textbf{Logika skóre:} Počet strelených gólov tímu v zápase nesmie byť záporné číslo. \\
-    \textit{Premietnutie:} `CHECK (skore_domaci >= 0 AND skore_hostia >= 0)`
+    \textit{Premietnutie:} \texttt{CHECK (skore\_domaci >= 0 AND skore\_hostia >= 0)}
     \item \textbf{Unikátnosť čísla dresu:} Dvaja aktívni hráči v tom istom tíme nesmú mať v jednej sezóne rovnaké číslo dresu. \\
-    \textit{Premietnutie:} Unikátny kľúč `UNIQUE (tim_id, cislo_dresu)` (s prípadným ohľadom na sezónu/status hráča).
+    \textit{Premietnutie:} Unikátny kľúč \texttt{UNIQUE (tim\_id, cislo\_dresu)} (s prípadným ohľadom na sezónu/status hráča).
     \item \textbf{Maximálny počet kariet:} Hráč nemôže v jednom zápase dostať viac ako dve žlté karty (čo znamená následnú červenú) alebo viac ako jednu priamu červenú kartu. \\
     \textit{Premietnutie:} Ošetrenie na aplikačnej/databázovej vrstve pomocou triggeru (ak sa vkladá udalosť karta, overí sa agregácia v danom zápase).
     \item \textbf{Príslušnosť hráča k tímu:} Hráč môže byť v jednom konkrétnom časovom úseku aktívnym členom iba jedného tímu. \\
