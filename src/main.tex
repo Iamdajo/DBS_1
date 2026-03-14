@@ -140,7 +140,13 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \end{enumerate}
     \item \textbf{Čo sa deje na dátovej vrstve:} Prehľadáva sa primárne tabuľka \texttt{Zapas}, ktorá sa spája (cez JOIN) s tabuľkou \texttt{Tim} pre získanie textových názvov domáceho a hosťujúceho celku. Aplikuje sa jednoduchý filter \texttt{WHERE kolo\_id = ?} alebo \texttt{WHERE datum = ?}. Nevykonávajú sa žiadne agregácie ani nevznikajú nové záznamy, ide o čisté čítanie dát (SELECT).
     \item \textbf{Alternatívne toky:} Ak používateľ zadá kolo, ktoré sa ešte nevyžrebovalo, alebo zadá dátum, počas ktorého sa nehrá, systém vyhodnotí prázdny výsledok a zobrazí text: „Pre zvolené kolo/dátum neboli nájdené žiadne zápasy.“
-    \item \textbf{Podporný UML diagram:} Najlepšie tento scenár vystihuje \textit{Sekvenčný diagram}, pretože jasne ilustruje priamočiaru komunikáciu a tok požiadaviek medzi používateľom, používateľským rozhraním a backendom (databázou).
+    \item \textbf{UML diagram:} Najlepšie tento scenár vystihuje \textit{Sekvenčný diagram}, pretože jasne ilustruje priamočiaru komunikáciu a tok požiadaviek medzi používateľom, používateľským rozhraním a backendom (databázou).
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{../assets/UC1_DBS.png} % upravenie cesty podľa potreby
+        \caption{Sekvenčný diagram pre UC1 – Zobrazenie zápasového prehľadu}
+        \label{fig:uc1_diagram}
+    \end{figure}
 \end{itemize}
 
 \subsection{UC2 – Vyhľadanie štatistík hráča}
