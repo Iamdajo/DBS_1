@@ -25,7 +25,6 @@
     xleftmargin=2em,
     framexleftmargin=1.5em
 }
-% Pro tip: for syntax highlighting, look into the 'minted' package.
 
 % ─── Bibliography ────────────────────────────────────────────────────────────
 \usepackage[style=numeric, backend=bibtex]{biblatex}
@@ -37,8 +36,8 @@
 % ─── Student details ─────────────────────────────────────────────────────────
 \newcommand{\StudentName}{Dávid Petrovič, Jakub Nemec}
 \newcommand{\StudyGroup}{Štvrtok 09:00}
-\newcommand{\AssignmentNumber}{0}
-\newcommand{\AssignmentTitle}{Zadanie 1: Navrh databazového modelu Premier Leauge}
+\newcommand{\AssignmentNumber}{1}
+\newcommand{\AssignmentTitle}{Návrh databázového modelu Premier League}
 \newcommand{\AcademicYear}{2025/2026}
 
 % =============================================================================
@@ -139,11 +138,11 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
         \item Používateľovi sa zobrazí vizuálny zoznam zápasov.
     \end{enumerate}
     \item \textbf{Čo sa deje na dátovej vrstve:} Prehľadáva sa primárne tabuľka \texttt{Zapas}, ktorá sa spája (cez JOIN) s tabuľkou \texttt{Tim} pre získanie textových názvov domáceho a hosťujúceho celku. Aplikuje sa jednoduchý filter \texttt{WHERE kolo\_id = ?} alebo \texttt{WHERE datum = ?}. Nevykonávajú sa žiadne agregácie ani nevznikajú nové záznamy, ide o čisté čítanie dát (SELECT).
-    \item \textbf{Alternatívne toky:} Ak používateľ zadá kolo, ktoré sa ešte nevyžrebovalo, alebo zadá dátum, počas ktorého sa nehrá, systém vyhodnotí prázdny výsledok a zobrazí text: „Pre zvolené kolo/dátum neboli nájdené žiadne zápasy.“
+    \item \textbf{Alternatívne toky:} Ak používateľ zadá kolo, ktoré sa ešte nevyžrebovalo, alebo zadá dátum, počas ktorého sa nehrá, systém vyhodnotí prázdny výsledok a zobrazí text: „Pre zvolené kolo/dátum neboli nájdené žiadne zápasy."
     \item \textbf{UML diagram:} Najlepšie tento scenár vystihuje \textit{Sekvenčný diagram}, pretože jasne ilustruje priamočiaru komunikáciu a tok požiadaviek medzi používateľom, používateľským rozhraním a backendom (databázou).
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.8\textwidth]{../assets/UC1_DBS} % upravenie cesty podľa potreby
+        \includegraphics[width=0.8\textwidth]{../assets/UC1_DBS}
         \caption{Sekvenčný diagram pre UC1 – Zobrazenie zápasového prehľadu}
         \label{fig:uc1_diagram}
     \end{figure}
@@ -154,13 +153,13 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Názov a stručný popis:} Vyhľadanie štatistík. Používateľ vyhľadáva konkrétneho hráča na základe mena, aby si pozrel jeho detailné štatistiky (góly, karty, odohraté minúty).
     \item \textbf{Hlavný tok krok za krokom:}
     \begin{enumerate}
-        \item Používateľ zadá do vyhľadávacieho poľa meno hráča (napr. „Bukayo Saka“).
+        \item Používateľ zadá do vyhľadávacieho poľa meno hráča (napr. „Bukayo Saka").
         \item Systém vyhľadá záznam hráča v systéme.
         \item Systém dynamicky prepočíta jeho sezónne štatistiky zo záznamov o zápasoch.
         \item Systém vygeneruje a používateľovi zobrazí profil hráča s agregovanými dátami.
     \end{enumerate}
     \item \textbf{Čo sa deje na dátovej vrstve:} Vyhľadáva sa v tabuľke \texttt{Hrac}. Z tabuľky \texttt{Udalost\_zapasu} sa následne získavajú štatistiky hráča cez asociačnú väzbu. Používajú sa agregačné funkcie \texttt{COUNT()} pre súčet gólov a kariet za danú sezónu, zoskupené cez klauzulu \texttt{GROUP BY hrac\_id}. Záznamy sa nemenia.
-    \item \textbf{Alternatívne toky:} Ak databáza vráti viacero hráčov s rovnakým menom, systém používateľovi zobrazí zoznam nájdených zhôd (s fotkou a tímom), z ktorého si používateľ musí presne vybrať. Ak hráč neexistuje, systém vypíše „Hráč nenájdený“.
+    \item \textbf{Alternatívne toky:} Ak databáza vráti viacero hráčov s rovnakým menom, systém používateľovi zobrazí zoznam nájdených zhôd (s fotkou a tímom), z ktorého si používateľ musí presne vybrať. Ak hráč neexistuje, systém vypíše „Hráč nenájdený".
     \item \textbf{Podporný UML diagram:} Pre tento scenár sa hodí \textit{Diagram aktivít}, keďže dobre zachytáva vetvenie logiky (rozhodovací blok) v prípade nájdenia nula, jedného, alebo viacerých hráčov súčasne.
 \end{itemize}
 
@@ -169,7 +168,7 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Názov a stručný popis:} Generovanie ligovej tabuľky. Používateľ chce vidieť aktuálne umiestnenie tímov vypočítané na základe výsledkov odohraných zápasov v prebiehajúcej sezóne.
     \item \textbf{Hlavný tok krok za krokom:}
     \begin{enumerate}
-        \item Používateľ klikne v navigácii na možnosť „Ligová tabuľka“.
+        \item Používateľ klikne v navigácii na možnosť „Ligová tabuľka".
         \item Systém identifikuje aktuálne prebiehajúcu sezónu.
         \item Načíta všetky ukončené zápasy v sezóne a agreguje výsledky tímov (výhry, remízy, prehry).
         \item Vypočíta zisk bodov a rozdiel v skóre pre každý tím.
@@ -193,8 +192,8 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
         \item Záznam sa uloží a administrátor obdrží potvrdzovaciu hlášku.
     \end{enumerate}
     \item \textbf{Čo sa deje na dátovej vrstve:} Vytvára sa nová entita. Dochádza k príkazu \texttt{INSERT INTO Hrac} s príslušnými atribútmi. Ešte predtým sa však databáza pokúsi overiť integritné obmedzenie pre unikátnosť. Kontroluje sa klauzula \texttt{UNIQUE (tim\_id, cislo\_dresu)}. Prehľadáva sa teda tabuľka \texttt{Hrac} pre daný \texttt{tim\_id}.
-    \item \textbf{Alternatívne toky:} Ak administrátor zadá číslo dresu (napr. 10), ktoré v aktuálnom tíme vlastní iný aktívny hráč, databáza vráti chybu na základe porušenia integritného obmedzenia. Systém akciu vloženia zruší a vyzve administrátora textom: „Toto číslo dresu je už v tíme obsadené. Zvoľte iné číslo.“
-    \item \textbf{Podporný UML diagram:} Najlepšie to znázorní \textit{Diagram aktivít}, ktorý sa hodí na popísanie používateľských akcií a systémovej spätnej väzby (vetvenie toku na „Úspešné vloženie“ vs. „Odmietnutie z dôvodu duplicity“).
+    \item \textbf{Alternatívne toky:} Ak administrátor zadá číslo dresu (napr. 10), ktoré v aktuálnom tíme vlastní iný aktívny hráč, databáza vráti chybu na základe porušenia integritného obmedzenia. Systém akciu vloženia zruší a vyzve administrátora textom: „Toto číslo dresu je už v tíme obsadené. Zvoľte iné číslo."
+    \item \textbf{Podporný UML diagram:} Najlepšie to znázorní \textit{Diagram aktivít}, ktorý sa hodí na popísanie používateľských akcií a systémovej spätnej väzby (vetvenie toku na „Úspešné vloženie" vs. „Odmietnutie z dôvodu duplicity").
 \end{itemize}
 
 \subsection{UC5 – Filtrovanie top strelcov}
@@ -202,14 +201,14 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Názov a stručný popis:} Rebríček top strelcov. Používateľ si chce pozrieť, kto strelil najviac gólov v sezóne a prípadne si tento zoznam vyfiltrovať pre špecifický tím alebo národnosť.
     \item \textbf{Hlavný tok krok za krokom:}
     \begin{enumerate}
-        \item Používateľ si otvorí podstránku ligových štatistík a zvolí kategóriu „Góly“.
-        \item (Voliteľné) Zvolí si z ponuky filter – napríklad tím „Arsenal“.
+        \item Používateľ si otvorí podstránku ligových štatistík a zvolí kategóriu „Góly".
+        \item (Voliteľné) Zvolí si z ponuky filter – napríklad tím „Arsenal".
         \item Systém identifikuje požiadavku a načíta si zoznam hráčov s priradeným počtom gólov.
         \item Výsledky zoradí od najlepšieho po najhoršieho.
         \item Zobrazí používateľovi formátovaný rebríček.
     \end{enumerate}
     \item \textbf{Čo sa deje na dátovej vrstve:} Dopytuje sa tabuľka \texttt{Hrac}, ktorá je prepojená (JOIN) s tabuľkou \texttt{Udalost\_zapasu}, prísne filtrovanou podmienkou \texttt{WHERE typ\_udalosti = 'gól'}. Vykonáva sa \texttt{COUNT(udalost\_id)}, pričom sa dáta zoskupujú pre každého hráča pomocou \texttt{GROUP BY hrac\_id}. Ak bol zvolený filter, aplikuje sa navyše \texttt{WHERE tim\_id = ?}. Zoradenie zabezpečí klauzula \texttt{ORDER BY pocet\_golov DESC}.
-    \item \textbf{Alternatívne toky:} Ak používateľ zvolí filter tímu, v ktorom počas danej sezóny nepadol ešte ani jeden gól (alebo hráči ešte vôbec nenastúpili na zápas), systém vygeneruje prázdny rebríček s informáciou: „Pre zvolené kritériá sa nenašli žiadni strelci.“
+    \item \textbf{Alternatívne toky:} Ak používateľ zvolí filter tímu, v ktorom počas danej sezóny nepadol ešte ani jeden gól (alebo hráči ešte vôbec nenastúpili na zápas), systém vygeneruje prázdny rebríček s informáciou: „Pre zvolené kritériá sa nenašli žiadni strelci."
     \item \textbf{Podporný UML diagram:} Pre túto operáciu je vhodný \textit{Sekvenčný diagram}, ktorý ukazuje odovzdávanie parametrov (filtrov) z frontendovej vrstvy do databázy a návrat prepočítanej štruktúry.
 \end{itemize}
 
@@ -220,197 +219,307 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \begin{enumerate}
         \item Používateľ zvolí do prvého výberového boxu Tím A.
         \item Používateľ zvolí do druhého výberového boxu Tím B.
-        \item Klikne na tlačidlo „Porovnať“.
+        \item Klikne na tlačidlo „Porovnať".
         \item Systém vyhľadá ich historické vzájomné zápasy naprieč všetkými evidovanými sezónami.
         \item Vypočíta štatistiku: počet výhier Tímu A, počet výhier Tímu B, počet remíz a celkové skóre.
         \item Zobrazí údaje vo forme grafiky a zoznamu predchádzajúcich stretnutí.
     \end{enumerate}
     \item \textbf{Čo sa deje na dátovej vrstve:} Prehľadáva sa tabuľka \texttt{Zapas} za použitia komplexnejšej podmienky \texttt{WHERE (domaci\_tim\_id = A AND hostujuci\_tim\_id = B) OR (domaci\_tim\_id = B AND hostujuci\_tim\_id = A)}. Žiadne záznamy nevznikajú. Z vytiahnutých dát prebieha na aplikačnej/databázovej vrstve agregácia, ktorá sumuje, koľkokrát skončilo skóre v prospech Tímu A, a koľkokrát v prospech Tímu B.
-    \item \textbf{Alternatívne toky:} Ak si používateľ vyberie dva tímy, ktoré podľa databázy proti sebe ešte nikdy neodohrali žiadny súťažný zápas (napríklad jeden z nich je absolútny nováčik z nižšej ligy), systém zastaví výpočet a vypíše: „Tieto dva tímy sa v rámci našej evidencie zatiaľ nestretli.“
+    \item \textbf{Alternatívne toky:} Ak si používateľ vyberie dva tímy, ktoré podľa databázy proti sebe ešte nikdy neodohrali žiadny súťažný zápas (napríklad jeden z nich je absolútny nováčik z nižšej ligy), systém zastaví výpočet a vypíše: „Tieto dva tímy sa v rámci našej evidencie zatiaľ nestretli."
     \item \textbf{Podporný UML diagram:} Scenár najlepšie modeluje \textit{Diagram aktivít}, keďže tu existuje jasný používateľský proces vkladania dvoch tímov a podmieňovací blok určujúci, či existuje dostatok dát na vykreslenie vizualizácie.
 \end{itemize}
 
-\section{Analysis}
-\label{sec:analysis}
-
-The goal of this project was to create a submission template for the DBS
-course that students can clone and start writing in immediately. The template
-should be easy to use, support Slovak and English, and not require any prior
-\LaTeX{} experience\footnote{If this is your first time with \LaTeX{}, the
-Overleaf guide \cite{overleaf-docs} covers everything you need in about 30 minutes.}.
-
-The template repository is available at \cite{template-repo}.
-
-% ── Subsections ──────────────────────────────────────────────────────────────
-% Use \subsection{} and \subsubsection{} when you need more structure.
-
-\subsection{Requirements}
-
-We identified the following requirements:
-
-\begin{itemize}
-    \item Clean cover page with faculty branding.
-    \item Bilingual support (SK/EN) via a single toggle.
-    \item Examples of tables, figures, code, and citations.
-    \item Minimal package dependencies --- it should compile everywhere.
-\end{itemize}
-
-When listing ordered steps, use \texttt{enumerate} instead:
-
-\begin{enumerate}
-    \item Clone the repository.
-    \item Edit \texttt{main.tex}.
-    \item Run \texttt{make}.
-    \item Submit the PDF.
-\end{enumerate}
-
+% ═══════════════════════════════════════════════════════════════════════════════
+% KAPITOLA 3 - Návrh relačného modelu
+% ═══════════════════════════════════════════════════════════════════════════════
 
 \newpage
-\section{Proposal}
-\label{sec:proposal}
+\section{Návrh relačného modelu}
+\label{sec:relacny-model}
 
-We compared a few approaches before settling on the current structure.
-Table~\ref{tab:comparison} summarizes our options.
+Táto kapitola predstavuje jadro dokumentu -- fyzický návrh databázového modelu pre systém evidencie anglickej futbalovej ligy (Premier League). Model je navrhnutý v UML notácii a obsahuje 6 plnohodnotných tabuliek (Sezona, Stadion, Tim, Hrac, Zapas, Udalost\_zapasu) doplnených o väzobnú tabuľku Zmluva a podpornú tabuľku Kolo. Všetky primárne kľúče sú umelé (auto-increment INT), keďže žiadna z entít nemá vhodný prirodzený kľúč, ktorý by bol nemenný, krátky a garantovane unikátny.
 
-% ── Tables ───────────────────────────────────────────────────────────────────
-% Use \begin{table}[H] to place the table exactly here.
-% Label it with \label{} and reference it with Table~\ref{}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../assets/ER}
+    \caption{Diagram relačného modelu v UML notácii}
+    \label{fig:relacny-model}
+\end{figure}
+
+\subsection{Popis tabuliek}
+
+\subsubsection{SEZONA}
+\textbf{Účel:} Reprezentuje jeden ligový ročník. Umožňuje uchovávať historické dáta a viazať štatistiky, zmluvy a zápasy na konkrétny časový úsek.
 
 \begin{table}[H]
     \centering
-    \caption{Comparison of template approaches}
-    \label{tab:comparison}
-    \begin{tabular}{l c c c}
+    \caption{Tabuľka SEZONA}
+    \label{tab:sezona}
+    \begin{tabular}{l l l l}
         \toprule
-        \textbf{Approach}  & \textbf{Easy to edit} & \textbf{Bilingual} & \textbf{Compiles anywhere} \\
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
         \midrule
-        Word document       & yes                   & manual             & n/a  \\
-        Markdown + Pandoc   & yes                   & no                 & maybe \\
-        \LaTeX{} template   & yes                   & yes                & yes  \\
+        sezona\_id      & INT          & PK, AUTO\_INCREMENT & Umelý primárny kľúč \\
+        nazov           & VARCHAR(20)  & NOT NULL, UNIQUE    & Názov ročníka (napr. 2024/2025) \\
+        datum\_zaciatok & DATE         & NOT NULL            & Dátum začiatku sezóny \\
+        datum\_koniec   & DATE         & NOT NULL            & Dátum konca sezóny \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-We chose \LaTeX{} because it handles structured documents, citations,
-and cross-references well --- things that matter when writing technical
-reports\footnote{It also looks way better than a Word document. But we are
-biased.}. Unrelated: the wood frog can survive being frozen solid for months ---
-its heart stops, it stops breathing, and in spring it just thaws and hops away.
-We found this less stressful than debugging \LaTeX{} table alignment.
+\textbf{Voľba PK:} Umelý kľúč. Názov sezóny by mohol slúžiť ako prirodzený kľúč, avšak jeho textový formát nie je vhodný pre efektívne spájanie tabuliek.
 
+\subsubsection{STADION}
+\textbf{Účel:} Eviduje domovské štadióny tímov. Oddelený od tabuľky Tim, pretože viacero tímov môže časom zdieľať rovnaký štadión a štadión má vlastné atribúty (kapacita, mesto).
 
-\newpage
-\section{Implementation}
-\label{sec:implementation}
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka STADION}
+    \label{tab:stadion}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        stadion\_id & INT           & PK, AUTO\_INCREMENT  & Umelý primárny kľúč \\
+        nazov       & VARCHAR(100)  & NOT NULL, UNIQUE     & Názov štadióna \\
+        mesto       & VARCHAR(50)   & NOT NULL             & Mesto, v ktorom sa nachádza \\
+        kapacita    & INT           & CHECK (kapacita > 0) & Kapacita divákov \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-The template lives in a simple directory structure with localization files
-separated from the main document. Switching language requires changing one
-line:
+\textbf{Voľba PK:} Umelý kľúč. Názov štadióna je síce unikátny, ale príliš dlhý pre FK referencie.
 
-% ── Code listings ────────────────────────────────────────────────────────────
-% Use lstlisting for short code snippets.
+\subsubsection{TIM}
+\textbf{Účel:} Základná entita ligy reprezentujúca futbalový klub. Je kľúčová pre organizáciu zápasov a priradenie hráčov.
 
-\begin{lstlisting}[language=TeX, caption={Switching language in the preamble}]
-% English
-\input{lang/en}
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka TIM}
+    \label{tab:tim}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        tim\_id        & INT           & PK, AUTO\_INCREMENT & Umelý primárny kľúč \\
+        nazov          & VARCHAR(100)  & NOT NULL, UNIQUE    & Celý názov klubu \\
+        rok\_zalozenia & INT           & CHECK (> 1800)      & Rok založenia klubu \\
+        skratka        & VARCHAR(3)    & UNIQUE              & Trojpísmenová skratka (napr. ARS) \\
+        stadion\_id    & INT           & FK, NOT NULL        & Odkaz na domovský štadión \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-% Slovak
-\input{lang/sk}
-\end{lstlisting}
+\textbf{Voľba PK:} Umelý kľúč. Skratka tímu je kandidátom na prirodzený kľúč, avšak môže sa v budúcnosti zmeniť.
 
-For SQL or other languages, change the \texttt{language} parameter:
+\textbf{Cudzí kľúč:} \texttt{stadion\_id} $\rightarrow$ \texttt{STADION(stadion\_id)}, ON DELETE RESTRICT (štadión nemožno vymazať, ak ho používa tím).
 
-\begin{lstlisting}[language=SQL, caption={Example SQL query}]
-SELECT s.name, COUNT(*) AS submission_count
-FROM students s
-JOIN submissions sub ON s.id = sub.student_id
-GROUP BY s.name
-ORDER BY submission_count DESC;
-\end{lstlisting}
+\subsubsection{HRAC}
+\textbf{Účel:} Reprezentuje individuálneho futbalistu nezávisle od tímu. Príslušnosť k tímu je riešená cez tabuľku Zmluva, čo umožňuje evidenciu prestupov.
 
-% ── Inline code ──────────────────────────────────────────────────────────────
-% Use \texttt{} for inline code: \texttt{SELECT * FROM ...}
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka HRAC}
+    \label{tab:hrac}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        hrac\_id         & INT          & PK, AUTO\_INCREMENT & Umelý primárny kľúč \\
+        meno             & VARCHAR(50)  & NOT NULL            & Krstné meno \\
+        priezvisko       & VARCHAR(50)  & NOT NULL            & Priezvisko \\
+        datum\_narodenia & DATE         & NOT NULL            & Dátum narodenia \\
+        narodnost        & VARCHAR(50)  & NOT NULL            & Národnosť hráča \\
+        pozicia          & ENUM         &                     & Brankár, Obranca, Stredopoliar, Útočník \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-References to tables, figures, and sections are automatic. For example,
-this is Section~\ref{sec:implementation}, the comparison is in
-Table~\ref{tab:comparison}, and the faculty logo is shown in
-Figure~\ref{fig:logo} in Attachment~\ref{sec:attachment-a1}.
-If you add or reorder content, the numbers update on the next build.
+\textbf{Voľba PK:} Umelý kľúč. Meno a priezvisko nie sú unikátne (viacero hráčov môže mať rovnaké meno).
 
-% ── Citations ────────────────────────────────────────────────────────────────
-% Add entries to references.bib, then cite them with \cite{key}.
-% The bibliography at the end is generated automatically.
+\subsubsection{ZMLUVA}
+\textbf{Účel:} Väzobná tabuľka medzi hráčom a tímom v rámci konkrétnej sezóny. Rieši prestupy, čísla dresov a príslušnosť hráča k tímu v danom časovom úseku.
 
-The database fundamentals referenced throughout the course are covered
-in \cite{elmasri2016}. For PostgreSQL-specific syntax, see
-\cite{postgresql-docs}.
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka ZMLUVA}
+    \label{tab:zmluva}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        zmluva\_id   & INT  & PK, AUTO\_INCREMENT & Umelý primárny kľúč \\
+        hrac\_id     & INT  & FK, NOT NULL        & Odkaz na hráča \\
+        tim\_id      & INT  & FK, NOT NULL        & Odkaz na tím \\
+        sezona\_id   & INT  & FK, NOT NULL        & Odkaz na sezónu \\
+        cislo\_dres  & INT  & CHECK (1--99)       & Číslo dresu \\
+        platnost\_od & DATE & NOT NULL            & Začiatok platnosti zmluvy \\
+        platnost\_do & DATE &                     & Koniec platnosti (NULL = aktívna) \\
+        status       & ENUM &                     & aktivna, ukoncena \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
+\textbf{Voľba PK:} Umelý kľúč. Kombinácia (hrac\_id, tim\_id, sezona\_id) by mohla slúžiť ako zložený PK, avšak hráč môže mať v jednej sezóne viacero zmlúv (prestup v zimnom prestupovom okne).
 
-\newpage
-\section{Challenges}
-\label{sec:challenges}
+\textbf{Cudzie kľúče:}
+\begin{itemize}
+    \item \texttt{hrac\_id} $\rightarrow$ \texttt{HRAC(hrac\_id)}, ON DELETE CASCADE
+    \item \texttt{tim\_id} $\rightarrow$ \texttt{TIM(tim\_id)}, ON DELETE RESTRICT
+    \item \texttt{sezona\_id} $\rightarrow$ \texttt{SEZONA(sezona\_id)}, ON DELETE RESTRICT
+\end{itemize}
 
-The main challenge was keeping the template simple enough that a student
-seeing \LaTeX{} for the first time would not immediately close the file.
-We solved this by limiting the preamble to essential packages and
-putting all examples in one place --- this document.
+\textbf{Ďalšie obmedzenia:} UNIQUE (tim\_id, sezona\_id, cislo\_dres) -- v jednom tíme v jednej sezóne nemôžu mať dvaja hráči rovnaké číslo dresu.
 
-We also learned that BibTeX interprets \texttt{@} signs in comments as
-entry types, which caused confusing errors. Small things like this are
-easy to fix once you know about them, but hard to debug the first time\footnote{A
-group of frogs is called an ``army.'' A group of students debugging BibTeX at
-2\,AM is called ``Tuesday.''}.
+\subsubsection{KOLO}
+\textbf{Účel:} Logické členenie sezóny na ligové kolá. Umožňuje filtrovanie zápasov podľa kola (UC1).
 
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka KOLO}
+    \label{tab:kolo}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        kolo\_id    & INT  & PK, AUTO\_INCREMENT & Umelý primárny kľúč \\
+        sezona\_id  & INT  & FK, NOT NULL        & Odkaz na sezónu \\
+        cislo\_kola & INT  & NOT NULL            & Poradové číslo kola \\
+        datum\_od   & DATE &                     & Začiatok kola \\
+        datum\_do   & DATE &                     & Koniec kola \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\newpage
-\section{Conclusion}
-\label{sec:conclusion}
+\textbf{Voľba PK:} Umelý kľúč. Kombinácia (sezona\_id, cislo\_kola) je kandidát, ale jednoduchý INT PK je efektívnejší.
 
-The template meets the requirements from Section~\ref{sec:analysis}.
-It compiles with a standard \LaTeX{} distribution, supports two
-languages, and provides working examples of every feature students
-are likely to need.
+\textbf{Cudzí kľúč:} \texttt{sezona\_id} $\rightarrow$ \texttt{SEZONA(sezona\_id)}, ON DELETE CASCADE.
 
-For anything not covered here, the Overleaf documentation
-\cite{overleaf-docs} is an excellent reference.
+\textbf{Ďalšie obmedzenia:} UNIQUE (sezona\_id, cislo\_kola).
+
+\subsubsection{ZAPAS}
+\textbf{Účel:} Nosná entita systému. Spája dva rôzne tímy (domáci a hostia) v konkrétnom kole a čase. Je kľúčová pre výpočet ligovej tabuľky (UC3), filtrovanie zápasov (UC1) a vzájomné porovnania tímov (UC6).
+
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka ZAPAS}
+    \label{tab:zapas}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        zapas\_id             & INT      & PK, AUTO\_INCREMENT          & Umelý primárny kľúč \\
+        kolo\_id              & INT      & FK, NOT NULL                & Odkaz na kolo \\
+        domaci\_tim\_id       & INT      & FK, NOT NULL                & Domáci tím \\
+        hostujuci\_tim\_id    & INT      & FK, NOT NULL                & Hosťujúci tím \\
+        datum\_cas            & DATETIME & NOT NULL                    & Dátum a čas výkopu \\
+        skore\_domaci\_tim    & INT      & DEFAULT 0, CHECK ($\geq$ 0) & Góly domácich \\
+        skore\_hostujuci\_tim & INT      & DEFAULT 0, CHECK ($\geq$ 0) & Góly hostí \\
+        status                & ENUM     &                             & planovany, odohrany, zruseny \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{Voľba PK:} Umelý kľúč. Kombinácia (domaci\_tim\_id, hostujuci\_tim\_id, datum\_cas) by bola príliš zložitá.
+
+\textbf{Cudzie kľúče:}
+\begin{itemize}
+    \item \texttt{kolo\_id} $\rightarrow$ \texttt{KOLO(kolo\_id)}, ON DELETE CASCADE
+    \item \texttt{domaci\_tim\_id} $\rightarrow$ \texttt{TIM(tim\_id)}, ON DELETE RESTRICT
+    \item \texttt{hostujuci\_tim\_id} $\rightarrow$ \texttt{TIM(tim\_id)}, ON DELETE RESTRICT
+\end{itemize}
+
+\textbf{Integritné obmedzenia:}
+\begin{itemize}
+    \item CHECK (domaci\_tim\_id != hostujuci\_tim\_id) -- tím nemôže hrať sám proti sebe
+    \item CHECK (skore\_domaci\_tim $\geq$ 0 AND skore\_hostujuci\_tim $\geq$ 0) -- skóre nesmie byť záporné
+\end{itemize}
+
+\subsubsection{UDALOST\_ZAPASU}
+\textbf{Účel:} Zaznamenáva kľúčové udalosti počas zápasu -- góly a karty. Spája hráča so zápasom a tímom v konkrétnej minúte. Je nevyhnutná pre generovanie rebríčka strelcov (UC5) a štatistík hráčov (UC2).
+
+\begin{table}[H]
+    \centering
+    \caption{Tabuľka UDALOST\_ZAPASU}
+    \label{tab:udalost-zapasu}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Atribút} & \textbf{Dátový typ} & \textbf{Obmedzenia} & \textbf{Popis} \\
+        \midrule
+        udalost\_id & INT  & PK, AUTO\_INCREMENT & Umelý primárny kľúč \\
+        zapas\_id   & INT  & FK, NOT NULL        & Odkaz na zápas \\
+        hrac\_id    & INT  & FK, NOT NULL        & Hráč, ktorý udalosť spôsobil \\
+        tim\_id     & INT  & FK, NOT NULL        & Tím, za ktorý hráč nastúpil \\
+        typ         & ENUM &                     & gol, zlta\_karta, cervena\_karta, vlastny\_gol \\
+        minuta      & INT  & CHECK (1--120)      & Minúta zápasu \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{Voľba PK:} Umelý kľúč. V jednej minúte môže nastať viacero udalostí, preto žiadna kombinácia atribútov nie je vhodný prirodzený kľúč.
+
+\textbf{Cudzie kľúče:}
+\begin{itemize}
+    \item \texttt{zapas\_id} $\rightarrow$ \texttt{ZAPAS(zapas\_id)}, ON DELETE CASCADE
+    \item \texttt{hrac\_id} $\rightarrow$ \texttt{HRAC(hrac\_id)}, ON DELETE CASCADE
+    \item \texttt{tim\_id} $\rightarrow$ \texttt{TIM(tim\_id)}, ON DELETE RESTRICT
+\end{itemize}
+
+\subsection{Popis vzťahov}
+
+\begin{table}[H]
+    \centering
+    \caption{Prehľad vzťahov medzi tabuľkami}
+    \label{tab:vztahy}
+    \begin{tabular}{l l l l}
+        \toprule
+        \textbf{Vzťah} & \textbf{Typ} & \textbf{Kardinalita} & \textbf{ON DELETE} \\
+        \midrule
+        STADION $\rightarrow$ TIM             & 1:N & 1 .. 0..* & RESTRICT \\
+        SEZONA $\rightarrow$ KOLO             & 1:N & 1 .. 0..* & CASCADE \\
+        SEZONA $\rightarrow$ ZMLUVA           & 1:N & 1 .. 0..* & RESTRICT \\
+        TIM $\rightarrow$ ZMLUVA              & 1:N & 1 .. 0..* & RESTRICT \\
+        HRAC $\rightarrow$ ZMLUVA             & 1:N & 1 .. 0..* & CASCADE \\
+        KOLO $\rightarrow$ ZAPAS              & 1:N & 1 .. 0..* & CASCADE \\
+        TIM $\rightarrow$ ZAPAS (domáci)      & 1:N & 1 .. 0..* & RESTRICT \\
+        TIM $\rightarrow$ ZAPAS (hostia)      & 1:N & 1 .. 0..* & RESTRICT \\
+        ZAPAS $\rightarrow$ UDALOST\_ZAPASU   & 1:N & 1 .. 0..* & CASCADE \\
+        HRAC $\rightarrow$ UDALOST\_ZAPASU    & 1:N & 1 .. 0..* & CASCADE \\
+        TIM $\rightarrow$ UDALOST\_ZAPASU     & 1:N & 1 .. 0..* & RESTRICT \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Všetky vzťahy sú typu 1:N, realizované prostredníctvom cudzích kľúčov na strane N. Vzťah medzi hráčom a tímom je logicky M:N (hráč môže hrať za viacero tímov v rôznych sezónach), čo je fyzicky realizované cez väzobnú tabuľku \texttt{ZMLUVA}.
+
+Pri mazaní sa používa \texttt{RESTRICT} pri kľúčových entitách (tím, štadión, sezóna), aby sa zabránilo neúmyselnému vymazaniu dát. \texttt{CASCADE} sa používa pri závislých entitách (udalosti zápasu, kolá), kde vymazanie nadradeného záznamu logicky znamená aj zánik podradených záznamov.
+
+\subsection{Pokrytie integritných obmedzení}
+
+Integritné obmedzenia definované v kapitole~\ref{sec:specifikacia} sú v návrhu zabezpečené nasledovne:
+
+\begin{itemize}
+    \item \textbf{Zamedzenie zápasu proti sebe samému:} CHECK constraint v tabuľke ZAPAS -- \texttt{domaci\_tim\_id != hostujuci\_tim\_id}.
+    \item \textbf{Logika skóre:} CHECK constraint v tabuľke ZAPAS -- \texttt{skore\_domaci\_tim >= 0} a \texttt{skore\_hostujuci\_tim >= 0}.
+    \item \textbf{Unikátnosť čísla dresu:} UNIQUE constraint v tabuľke ZMLUVA -- \texttt{(tim\_id, sezona\_id, cislo\_dres)}.
+    \item \textbf{Maximálny počet kariet:} Riešené na aplikačnej vrstve pomocou triggeru, ktorý pred vložením novej udalosti typu karta overí agregáciu existujúcich kariet pre daného hráča v danom zápase.
+    \item \textbf{Príslušnosť hráča k tímu:} Tabuľka ZMLUVA s atribútmi platnost\_od a platnost\_do. Neprekrývanie intervalov je kontrolované na aplikačnej/databázovej vrstve.
+\end{itemize}
+
+\subsection{Pokrytie používateľských scenárov}
+
+Navrhnutý relačný model umožňuje realizáciu všetkých definovaných scenárov:
+
+\begin{itemize}
+    \item \textbf{UC1 -- Zobrazenie zápasového prehľadu:} SELECT z tabuliek ZAPAS a TIM s filtrom na KOLO alebo dátum.
+    \item \textbf{UC2 -- Vyhľadanie štatistík hráča:} SELECT z tabuliek HRAC a UDALOST\_ZAPASU s agregáciou COUNT() a GROUP BY.
+    \item \textbf{UC3 -- Zobrazenie tabuľky ligy:} Agregácia výsledkov z tabuľky ZAPAS s podmienkou na SEZONA cez KOLO, výpočet bodov pomocou CASE WHEN.
+    \item \textbf{UC4 -- Správa hráčov v tíme:} INSERT do tabuliek HRAC a ZMLUVA s kontrolou UNIQUE constraintu na číslo dresu.
+    \item \textbf{UC5 -- Filtrovanie top strelcov:} SELECT z HRAC JOIN UDALOST\_ZAPASU WHERE typ = 'gol' s COUNT() a ORDER BY DESC.
+    \item \textbf{UC6 -- Head-to-Head porovnanie:} SELECT z ZAPAS s podmienkou na oba tímy (domáci aj hostia) naprieč všetkými sezónami.
+\end{itemize}
 
 % ─── Bibliography ────────────────────────────────────────────────────────────
 \printbibliography
-
-% ─── Attachments ─────────────────────────────────────────────────────────────
-\newpage
-\appendix
-
-\section{Sample figures}
-\label{sec:attachment-a1}
-
-% ── Figures ──────────────────────────────────────────────────────────────────
-% Use \begin{figure}[H] to place the figure exactly here.
-% Label it with \label{} and reference it with Figure~\ref{}.
-% Keep images in the assets/ directory.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.25\textwidth]{../assets/logo}
-    \caption{Faculty logo used on the cover page}
-    \label{fig:logo}
-\end{figure}
-
-Place your diagrams, screenshots, and other supporting images in this
-section. Reference them from the main text using
-\texttt{Figure\~{}\textbackslash ref\{fig:logo\}}.
-
-Some frogs can absorb water through a patch of skin on their belly called a
-``drinking patch'' --- they literally sit in puddles to hydrate. This has
-nothing to do with databases but is objectively more interesting than
-anything on this page.
-
-% You can control the image size with the width parameter:
-%   width=0.5\textwidth   ... half the page width
-%   width=5cm             ... exact size
-%   scale=0.8             ... 80% of original
-
-% To add more figures, copy the block above and change the file path,
-% caption, and label.
 
 \end{document}
