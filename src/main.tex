@@ -161,6 +161,12 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Čo sa deje na dátovej vrstve:} Vyhľadáva sa v tabuľke \texttt{Hrac}. Z tabuľky \texttt{Udalost\_zapasu} sa následne získavajú štatistiky hráča cez asociačnú väzbu. Používajú sa agregačné funkcie \texttt{COUNT()} pre súčet gólov a kariet za danú sezónu, zoskupené cez klauzulu \texttt{GROUP BY hrac\_id}. Záznamy sa nemenia.
     \item \textbf{Alternatívne toky:} Ak databáza vráti viacero hráčov s rovnakým menom, systém používateľovi zobrazí zoznam nájdených zhôd (s fotkou a tímom), z ktorého si používateľ musí presne vybrať. Ak hráč neexistuje, systém vypíše „Hráč nenájdený".
     \item \textbf{Podporný UML diagram:} Pre tento scenár sa hodí \textit{Diagram aktivít}, keďže dobre zachytáva vetvenie logiky (rozhodovací blok) v prípade nájdenia nula, jedného, alebo viacerých hráčov súčasne.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.7\textwidth]{../assets/UC2_DBS.png}
+        \caption{Diagram aktivít pre UC2 – Vyhľadanie štatistík hráča}
+        \label{fig:uc2_diagram}
+    \end{figure}
 \end{itemize}
 
 \subsection{UC3 – Zobrazenie tabuľky ligy}
@@ -177,6 +183,12 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Čo sa deje na dátovej vrstve:} Ide o výpočtovo najzložitejší dopyt. Z tabuľky \texttt{Zapas} sa čítajú všetky záznamy pre aktuálnu sezónu (\texttt{sezona\_id = ?}), ktoré majú status odohrané. Používajú sa zložité podmienené agregácie (napr. \texttt{CASE WHEN} pre udelenie 3 bodov za výhru a 1 bodu za remízu). Dáta sa spájajú s tabuľkou \texttt{Tim}. Na záver sa na výsledný set aplikuje operácia zoradenia \texttt{ORDER BY body DESC, rozdiel\_skore DESC}.
     \item \textbf{Alternatívne toky:} Ak sa sezóna ešte len začala a neodohral sa zatiaľ žiadny zápas, tabuľka nemá z čoho vypočítať body. V takom prípade systém vráti zoznam všetkých tímov priradených k sezóne s 0 bodmi a zoradí ich primárne podľa abecedy.
     \item \textbf{Podporný UML diagram:} Tento scenár najlepšie vystihne \textit{Sekvenčný diagram}, pretože jasne poukazuje na asynchrónnu komunikáciu databázy, ktorá musí agregovať obrovské množstvo záznamov o zápasoch, kým vráti výsledok do frontendovej časti.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{../assets/UC3_DBS.png}
+        \caption{Sekvenčný diagram pre UC3 – Zobrazenie tabuľky ligy}
+        \label{fig:uc3_diagram}
+    \end{figure}
 \end{itemize}
 
 \subsection{UC4 – Správa hráčov v tíme (Admin)}
@@ -194,6 +206,12 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Čo sa deje na dátovej vrstve:} Vytvára sa nová entita. Dochádza k príkazu \texttt{INSERT INTO Hrac} s príslušnými atribútmi. Ešte predtým sa však databáza pokúsi overiť integritné obmedzenie pre unikátnosť. Kontroluje sa klauzula \texttt{UNIQUE (tim\_id, cislo\_dresu)}. Prehľadáva sa teda tabuľka \texttt{Hrac} pre daný \texttt{tim\_id}.
     \item \textbf{Alternatívne toky:} Ak administrátor zadá číslo dresu (napr. 10), ktoré v aktuálnom tíme vlastní iný aktívny hráč, databáza vráti chybu na základe porušenia integritného obmedzenia. Systém akciu vloženia zruší a vyzve administrátora textom: „Toto číslo dresu je už v tíme obsadené. Zvoľte iné číslo."
     \item \textbf{Podporný UML diagram:} Najlepšie to znázorní \textit{Diagram aktivít}, ktorý sa hodí na popísanie používateľských akcií a systémovej spätnej väzby (vetvenie toku na „Úspešné vloženie" vs. „Odmietnutie z dôvodu duplicity").
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.7\textwidth]{../assets/UC4_DBS.png}
+        \caption{Diagram aktivít pre UC4 – Správa hráčov v tíme}
+        \label{fig:uc4_diagram}
+    \end{figure}
 \end{itemize}
 
 \subsection{UC5 – Filtrovanie top strelcov}
@@ -210,6 +228,12 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Čo sa deje na dátovej vrstve:} Dopytuje sa tabuľka \texttt{Hrac}, ktorá je prepojená (JOIN) s tabuľkou \texttt{Udalost\_zapasu}, prísne filtrovanou podmienkou \texttt{WHERE typ\_udalosti = 'gól'}. Vykonáva sa \texttt{COUNT(udalost\_id)}, pričom sa dáta zoskupujú pre každého hráča pomocou \texttt{GROUP BY hrac\_id}. Ak bol zvolený filter, aplikuje sa navyše \texttt{WHERE tim\_id = ?}. Zoradenie zabezpečí klauzula \texttt{ORDER BY pocet\_golov DESC}.
     \item \textbf{Alternatívne toky:} Ak používateľ zvolí filter tímu, v ktorom počas danej sezóny nepadol ešte ani jeden gól (alebo hráči ešte vôbec nenastúpili na zápas), systém vygeneruje prázdny rebríček s informáciou: „Pre zvolené kritériá sa nenašli žiadni strelci."
     \item \textbf{Podporný UML diagram:} Pre túto operáciu je vhodný \textit{Sekvenčný diagram}, ktorý ukazuje odovzdávanie parametrov (filtrov) z frontendovej vrstvy do databázy a návrat prepočítanej štruktúry.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{../assets/UC5_DBS.png}
+        \caption{Sekvenčný diagram pre UC5 – Filtrovanie top strelcov}
+        \label{fig:uc5_diagram}
+    \end{figure}
 \end{itemize}
 
 \subsection{UC6 – Porovnanie výkonu dvoch tímov (Head-to-Head)}
@@ -227,6 +251,12 @@ Systém musí rešpektovať pravidlá reálneho futbalového sveta. Tieto pravid
     \item \textbf{Čo sa deje na dátovej vrstve:} Prehľadáva sa tabuľka \texttt{Zapas} za použitia komplexnejšej podmienky \texttt{WHERE (domaci\_tim\_id = A AND hostujuci\_tim\_id = B) OR (domaci\_tim\_id = B AND hostujuci\_tim\_id = A)}. Žiadne záznamy nevznikajú. Z vytiahnutých dát prebieha na aplikačnej/databázovej vrstve agregácia, ktorá sumuje, koľkokrát skončilo skóre v prospech Tímu A, a koľkokrát v prospech Tímu B.
     \item \textbf{Alternatívne toky:} Ak si používateľ vyberie dva tímy, ktoré podľa databázy proti sebe ešte nikdy neodohrali žiadny súťažný zápas (napríklad jeden z nich je absolútny nováčik z nižšej ligy), systém zastaví výpočet a vypíše: „Tieto dva tímy sa v rámci našej evidencie zatiaľ nestretli."
     \item \textbf{Podporný UML diagram:} Scenár najlepšie modeluje \textit{Diagram aktivít}, keďže tu existuje jasný používateľský proces vkladania dvoch tímov a podmieňovací blok určujúci, či existuje dostatok dát na vykreslenie vizualizácie.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.7\textwidth]{../assets/UC6_DBS.png}
+        \caption{Diagram aktivít pre UC6 – Porovnanie výkonu dvoch tímov (Head-to-Head)}
+        \label{fig:uc6_diagram}
+    \end{figure}
 \end{itemize}
 
 % ═══════════════════════════════════════════════════════════════════════════════
